@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cờ Caro</title>
+<style>
+:root{--page:#fff7e0;--paper:#fffefa;--grid:#a9cdf2;--margin:#f4a6b0;--x:#e5383b;--o:#1d4ed8;--hl:#ffe066;--ink:#23304a;--mute:#66728a;--btn:#23304a;--btnink:#fffefa;--chip:#ffffffb0;--shadow:#23304a22;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0f1a22;--paper:#17252f;--grid:#2f4a5e;--margin:#7a3d52;--x:#ff7b72;--o:#6cc4ff;--hl:#7a6a1c;--ink:#eef3f7;--mute:#9db0bf;--btn:#eef3f7;--btnink:#0f1a22;--chip:#ffffff14;--shadow:#00000066;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#0f1a22;--paper:#17252f;--grid:#2f4a5e;--margin:#7a3d52;--x:#ff7b72;--o:#6cc4ff;--hl:#7a6a1c;--ink:#eef3f7;--mute:#9db0bf;--btn:#eef3f7;--btnink:#0f1a22;--chip:#ffffff14;--shadow:#00000066;color-scheme:dark}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:var(--page);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;padding:18px 12px 28px}
+main{width:min(100%,540px);display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font:800 44px/1 "Baloo 2","Segoe UI",system-ui,sans-serif;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+h1 .mx{color:var(--x)}h1 .mo{color:var(--o)}
+.sub{margin:2px 0 0;color:var(--mute);font-size:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:14px;padding:4px;gap:4px;box-shadow:0 1px 0 var(--shadow)}
+.seg button{border:0;background:none;color:var(--ink);font:700 15px/1 inherit;font-family:inherit;padding:12px 8px;border-radius:11px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed=true]{background:var(--btn);color:var(--btnink)}
+.lv{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lv span{color:var(--mute);font-size:14px;margin-right:2px}
+.lv button{border:2px solid var(--grid);background:none;color:var(--ink);font:600 14px/1 inherit;font-family:inherit;padding:9px 16px;border-radius:99px;cursor:pointer;min-height:40px}
+.lv button[aria-pressed=true]{background:var(--hl);border-color:var(--hl);color:#23304a}
+.score{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.sc{background:var(--chip);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:0}
+.sc.on{outline:3px solid var(--hl)}
+.sc b{font:800 26px/1 "Baloo 2",system-ui,sans-serif;margin-left:auto}
+.sc em{font-style:normal;font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;color:var(--mute);font-size:12px}
+.mid b{font:800 20px/1 "Baloo 2",system-ui,sans-serif;color:var(--ink)}
+.mk{width:22px;height:22px;position:relative;flex:none}
+.mk.x::before,.mk.x::after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;border-radius:9px;background:var(--x);transform:rotate(45deg)}
+.mk.x::after{transform:rotate(-45deg)}
+.mk.o{border:4px solid var(--o);border-radius:50%}
+#status{text-align:center;font:700 18px/1.2 "Baloo 2",system-ui,sans-serif;min-height:24px}
+.page{position:relative;background:var(--paper);border-radius:12px;padding:10px;box-shadow:0 10px 24px var(--shadow),0 0 0 1px var(--shadow)}
+.page::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.0}
+#board{display:grid;grid-template-columns:repeat(15,1fr);aspect-ratio:1;width:100%;border-top:1px solid var(--grid);border-left:1px solid var(--grid);touch-action:manipulation}
+.c{position:relative;border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.c:not(.f):hover{background:color-mix(in srgb,var(--hl) 35%,transparent)}
+.c i{position:absolute;inset:12%;display:none;transform:rotate(var(--r,0deg))}
+.f{cursor:default}
+.f i{display:block;animation:pop .28s cubic-bezier(.3,1.7,.5,1)}
+.p1 i::before,.p1 i::after{content:"";position:absolute;left:-4%;right:-4%;top:50%;height:15%;margin-top:-7.5%;border-radius:9px;background:var(--x);transform:rotate(45deg)}
+.p1 i::after{transform:rotate(-45deg)}
+.p2 i{border:3px solid var(--o);border-radius:50%}
+.last{background:color-mix(in srgb,var(--hl) 40%,transparent)}
+.win{background:var(--hl);animation:pulse .7s ease-in-out infinite alternate}
+@keyframes pop{from{transform:scale(.2) rotate(var(--r,0deg));opacity:0}to{transform:scale(1) rotate(var(--r,0deg));opacity:1}}
+@keyframes pulse{to{filter:brightness(1.12)}}
+.act{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act button{font:700 16px/1 inherit;font-family:inherit;border-radius:14px;padding:15px;min-height:50px;cursor:pointer;border:2px solid var(--btn)}
+#undo{background:none;color:var(--ink)}
+#again{background:var(--btn);color:var(--btnink)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,.c:focus-visible{outline:3px solid var(--o);outline-offset:2px}
+#modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;padding:20px;z-index:5}
+#modal.show{display:flex}
+.card{background:var(--paper);border-radius:22px;padding:28px 24px;text-align:center;width:min(100%,340px);animation:pop .35s cubic-bezier(.3,1.5,.5,1)}
+.card .big{font:800 34px/1.1 "Baloo 2",system-ui,sans-serif;margin:8px 0 4px}
+.card p{margin:0 0 18px;color:var(--mute)}
+.card button{width:100%;font:700 16px/1 inherit;font-family:inherit;padding:15px;border-radius:14px;border:0;background:var(--btn);color:var(--btnink);cursor:pointer;min-height:50px}
+.card .mk{margin:0 auto;width:44px;height:44px}
+.card .mk.x::before,.card .mk.x::after{height:8px;margin-top:-4px}
+.card .mk.o{border-width:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (max-width:380px){h1{font-size:36px}.sc em{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1><span class="mx">Cờ</span><span class="mo">Caro</span></h1>
+    <p class="sub">Xếp 5 quân liên tiếp theo hàng ngang, dọc hoặc chéo để thắng.</p>
+  </header>
+
+  <div class="seg" role="group" aria-label="Chế độ chơi">
+    <button id="mAI" aria-pressed="true">Chơi với máy</button>
+    <button id="m2P" aria-pressed="false">Chơi 2 người</button>
+  </div>
+
+  <div class="lv" id="lv" role="group" aria-label="Độ khó">
+    <span>Độ khó</span>
+    <button data-l="0" aria-pressed="false">Dễ</button>
+    <button data-l="1" aria-pressed="true">Vừa</button>
+    <button data-l="2" aria-pressed="false">Khó</button>
+  </div>
+
+  <div class="score">
+    <div class="sc" id="s1"><i class="mk x"></i><em id="n1">Bạn</em><b id="w1">0</b></div>
+    <div class="mid"><b id="wd">0</b>hòa</div>
+    <div class="sc" id="s2"><i class="mk o"></i><em id="n2">Máy</em><b id="w2">0</b></div>
+  </div>
+
+  <div id="status" aria-live="polite"></div>
+
+  <div class="page"><div id="board" role="grid" aria-label="Bàn cờ 15 x 15"></div></div>
+
+  <div class="act">
+    <button id="undo">Đi lại</button>
+    <button id="again">Ván mới</button>
+  </div>
+</main>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="card">
+    <i class="mk x" id="mmk"></i>
+    <div class="big" id="mt"></div>
+    <p id="ms"></p>
+    <button id="mb">Chơi ván mới</button>
+  </div>
+</div>
+
+<script>
+(function(){
+var N=15,D=[[1,0],[0,1],[1,1],[1,-1]];
+var b,turn,hist,over,busy,tm,winSet=new Set(),mode='ai',lvl=1,sc={1:0,2:0,d:0};
+var $=function(id){return document.getElementById(id)};
+var bd=$('board'),cells=[];
+for(var i=0;i<N*N;i++){var c=document.createElement('div');c.className='c';c.dataset.i=i;c.setAttribute('role','gridcell');c.innerHTML='<i></i>';bd.appendChild(c);cells.push(c)}
+bd.addEventListener('click',function(e){var c=e.target.closest('.c');if(!c)return;human(+c.dataset.i)});
+
+function human(i){if(over||busy||b[i])return;if(mode==='ai'&&turn!==1)return;place(i)}
+function inb(r,c){return r>=0&&r<N&&c>=0&&c<N}
+function line(i,p){var r=Math.floor(i/N),c=i%N;
+  for(var k=0;k<4;k++){var dr=D[k][0],dc=D[k][1],cs=[i];
+    for(var s=-1;s<=1;s+=2){var rr=r+dr*s,cc=c+dc*s;while(inb(rr,cc)&&b[rr*N+cc]===p){cs.push(rr*N+cc);rr+=dr*s;cc+=dc*s}}
+    if(cs.length>=5)return cs}
+  return null}
+
+function place(i){
+  b[i]=turn;hist.push(i);
+  cells[i].firstChild.style.setProperty('--r',(Math.random()*14-7).toFixed(1)+'deg');
+  var w=line(i,turn);
+  if(w){finish(turn,w);return}
+  if(hist.length===N*N){finish(0,null);return}
+  turn=3-turn;render();
+  if(mode==='ai'&&turn===2){busy=true;tm=setTimeout(function(){var m=ai();busy=false;place(m)},380)}
+}
+
+function finish(p,w){
+  over=true;busy=false;winSet=new Set(w||[]);
+  if(p)sc[p]++;else sc.d++;
+  render();
+  var t,s;
+  if(!p){t='Hòa rồi!';s='Bàn cờ đã kín mà chưa ai xếp đủ 5 quân.'}
+  else if(mode==='ai'){t=p===1?'Bạn thắng! 🎉':'Máy thắng!';s=p===1?'Chơi hay lắm. Thử độ khó cao hơn nhé.':'Đổi độ khó hoặc chơi lại để gỡ nhé.'}
+  else{t='Người '+p+' thắng! 🎉';s='Người '+p+' ('+(p===1?'X':'O')+') xếp được 5 quân liên tiếp.'}
+  setTimeout(function(){if(!over)return;
+    $('mt').textContent=t;$('ms').textContent=s;
+    var m=$('mmk');m.className='mk '+(p===1?'x':p===2?'o':'');m.style.display=p?'block':'none';
+    $('modal').classList.add('show');$('mb').focus()},750);
+}
+
+function render(){
+  var last=hist.length?hist[hist.length-1]:-1;
+  for(var i=0;i<N*N;i++){
+    cells[i].className='c'+(b[i]?' f p'+b[i]:'')+(i===last&&!over?' last':'')+(winSet.has(i)?' win':'');
+  }
+  var ai=mode==='ai';
+  $('n1').textContent=ai?'Bạn':'Người 1';$('n2').textContent=ai?'Máy':'Người 2';
+  $('w1').textContent=sc[1];$('w2').textContent=sc[2];$('wd').textContent=sc.d;
+  $('s1').classList.toggle('on',!over&&turn===1);$('s2').classList.toggle('on',!over&&turn===2);
+  var st;
+  if(over)st='Ván đã kết thúc';
+  else if(ai)st=turn===1?'Đến lượt bạn (X)':'Máy đang nghĩ…';
+  else st='Lượt của người '+turn+' ('+(turn===1?'X':'O')+')';
+  $('status').textContent=st;
+  $('undo').disabled=over||busy||!hist.length;
+}
+
+function reset(){
+  clearTimeout(tm);busy=false;over=false;turn=1;hist=[];winSet=new Set();
+  b=new Array(N*N).fill(0);
+  cells.forEach(function(c){c.firstChild.style.removeProperty('--r')});
+  $('modal').classList.remove('show');render();
+}
+
+function undo(){
+  if(over||busy||!hist.length)return;
+  var n=mode==='ai'?Math.min(2,hist.length):1;
+  while(n--){b[hist.pop()]=0}
+  turn=mode==='ai'?1:(hist.length%2===0?1:2);
+  render();
+}
+
+/* Máy: chấm điểm từng ô trống theo tấn công + phòng thủ */
+function score(r,c,p){
+  var t=0;
+  for(var k=0;k<4;k++){
+    var dr=D[k][0],dc=D[k][1],n=1,o=0;
+    for(var s=-1;s<=1;s+=2){
+      var rr=r+dr*s,cc=c+dc*s;
+      while(inb(rr,cc)&&b[rr*N+cc]===p){n++;rr+=dr*s;cc+=dc*s}
+      if(inb(rr,cc)&&b[rr*N+cc]===0)o++;
+    }
+    if(n>=5)t+=1e5;
+    else if(n===4)t+=o===2?1e4:o===1?2000:0;
+    else if(n===3)t+=o===2?1000:o===1?100:0;
+    else if(n===2)t+=o===2?100:o===1?10:0;
+    else t+=o===2?10:o===1?1:0;
+  }
+  return t;
+}
+function near(r,c){
+  for(var a=-2;a<=2;a++)for(var d=-2;d<=2;d++){var rr=r+a,cc=c+d;if(inb(rr,cc)&&b[rr*N+cc])return true}
+  return false}
+function ai(){
+  if(!hist.length)return 112;
+  var k=[0.6,1,1.2][lvl],jit=[2500,150,0][lvl],best=-1,pick=-1;
+  for(var r=0;r<N;r++)for(var c=0;c<N;c++){
+    if(b[r*N+c]||!near(r,c))continue;
+    var a=score(r,c,2),d=score(r,c,1);
+    var s=a>=1e5?1e7:a+d*k+Math.random()*jit;
+    if(s>best){best=s;pick=r*N+c}
+  }
+  return pick;
+}
+
+function setMode(m){
+  mode=m;sc={1:0,2:0,d:0};
+  $('mAI').setAttribute('aria-pressed',m==='ai');$('m2P').setAttribute('aria-pressed',m==='2p');
+  $('lv').style.display=m==='ai'?'flex':'none';
+  reset();
+}
+$('mAI').onclick=function(){if(mode!=='ai')setMode('ai')};
+$('m2P').onclick=function(){if(mode!=='2p')setMode('2p')};
+document.querySelectorAll('#lv button').forEach(function(btn){
+  btn.onclick=function(){lvl=+btn.dataset.l;
+    document.querySelectorAll('#lv button').forEach(function(x){x.setAttribute('aria-pressed',x===btn)});
+    reset()}
+});
+$('undo').onclick=undo;$('again').onclick=reset;$('mb').onclick=reset;
+reset();
+})();
+</script>
+</body>
+</html>
